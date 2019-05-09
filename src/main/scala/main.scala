@@ -1,12 +1,9 @@
 import java.io.{File, PrintWriter}
 
-import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx._
 
-import scala.io.Source
 import scala.util.control.Breaks._
 
 object Main {
@@ -20,10 +17,8 @@ object Main {
       .config("spark.master", "local")
       .getOrCreate()
     val sc = spark.sparkContext
-    val edges_file = sc.textFile("data/wiki-topcats-short2.txt")
-    val vertex_file = sc.textFile("data/wiki-topcats-page-names.txt")
-    //    val vertex_file = sc.textFile("data/wiki-topcats-page-names.txt")
-
+    val edges_file = sc.textFile("data/wiki-topcats-short_ver_2.txt")
+    val vertex_file = sc.textFile("data/wiki-topcats-page-names-short_ver_2.txt")
 
     val edgesRDD: RDD[Edge[Long]] = edges_file.map(line => line.split(" "))
       .map(line => Edge(line(0).toLong, line(1).toLong, 2L))
@@ -36,6 +31,7 @@ object Main {
 
 
 //    //TakeNeighbourLables
+//    this
 //    def SendMSG(edge: EdgeTriplet[Long, Long]): Iterator[(VertexId, Map[Long, Long])] = {
 //      Iterator((edge.dstId, Map(edge.srcAttr -> 1L))) //dstAttr or srcAttr??????????????????????????????????????????
 //    }
@@ -85,30 +81,18 @@ object Main {
 
         numOfClusters = numOfClusters :+ g.vertices.map(_._2).collect().toSet.size
 
-        //        g.collectNeighbors()
-        //        val neigbours: EdgeRDD[VertexId] = g.edges
-        //        neigbours.map()
-        //        g.edges.map(x => (x.srcId, (x.s)))
-        //        var tr: Array[EdgeTriplet[VertexId, VertexId]] = g.triplets.collect()
-
         if (numOfClusters.length >= 2) {
           if (Math.abs(numOfClusters(i - 1) - numOfClusters(i - 2)) < 3) {
-            g.vertices.saveAsTextFile("data/outputClusters_" + i.toString)
+            g.vertices.saveAsTextFile("data/outputClustersNormalData2_" + i.toString)
             break
           }
         }
       }
     }
-    val writer = new PrintWriter(new File("data/num_clusters_res.txt"))
+    val writer = new PrintWriter(new File("data/num_clusters_resNormalData2.txt"))
 
     writer.write(numOfClusters.mkString(","))
     writer.close()
-
-    myGraph.vertices.saveAsTextFile("data/output_res")
-
-
-    //    g.vertices.foreach(println)
-    //    println(g.vertices.collectAsMap().keys.toSet.size)
 
 
   }
